@@ -1,7 +1,6 @@
 import pytest
 from app import calculate_scholarship
 
-# 1. Тест успішних сценаріїв (3 в 1)
 @pytest.mark.parametrize("grade, max_g, base, expected", [
     (4.5, 5, 2000, 1800.0), # Звичайний розрахунок
     (5.0, 5, 1000, 1000.0), # Максимальний бал
