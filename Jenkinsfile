@@ -2,16 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // ЗАМІНИ НА СВІЙ ЛОГІН DOCKERHUB
-        DOCKER_IMAGE = 'tviy_login_dockerhub/scholarship-app' 
-        // ID, який ми створимо в Jenkins на кроці 2
+        // Замініть на ваш логін
+        DOCKER_IMAGE = 'lipovanton1001/scholarship-app' 
         DOCKER_CREDS_ID = 'dockerhub-credentials'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Завантаження коду з Git
                 checkout scm
             }
         }
@@ -20,7 +18,8 @@ pipeline {
             steps {
                 script {
                     echo '--- Building Docker Image ---'
-                    sh "docker build -t ${DOCKER_IMAGE}:latest ."
+                    // Використовуємо bat замість sh
+                    bat "docker build -t %DOCKER_IMAGE%:latest ."
                 }
             }
         }
@@ -29,8 +28,8 @@ pipeline {
             steps {
                 script {
                     echo '--- Running Tests inside Container ---'
-                    // Запускаємо контейнер, проганяємо pytest і видаляємо контейнер (--rm)
-                    sh "docker run --rm ${DOCKER_IMAGE}:latest pytest"
+                    // bat для Windows
+                    bat "docker run --rm %DOCKER_IMAGE%:latest pytest"
                 }
             }
         }
@@ -39,10 +38,10 @@ pipeline {
             steps {
                 script {
                     echo '--- Pushing to Docker Hub ---'
-                    // Використовуємо збережені логін/пароль для входу і пушу
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDS_ID}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}:latest"
+                        // Логін на Windows через bat виглядає трохи інакше
+                        bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+                        bat "docker push %DOCKER_IMAGE%:latest"
                     }
                 }
             }
@@ -51,9 +50,10 @@ pipeline {
 
     post {
         always {
-            // Очистка: видаляємо локальний образ та виходимо з докера
-            sh "docker logout"
-            sh "docker rmi ${DOCKER_IMAGE}:latest || true"
+            // Очистка на Windows
+            bat "docker logout"
+            // || exit 0 допомагає не валити білд, якщо образу немає
+            bat "docker rmi %DOCKER_IMAGE%:latest || exit 0"
         }
     }
 }
