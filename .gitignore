@@ -1,25 +1,5 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv
-pip-log.txt
+*.pyc
 .pytest_cache/
-*.cover
-.coverage
-htmlcov/
-
-# IDE
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
+venv/
